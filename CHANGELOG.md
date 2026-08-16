@@ -2,6 +2,12 @@
 
 All notable changes to `@deepseek-ai/dsh-client-ui-timeline-navigator`.
 
+## [0.3.1] - 2026-08-16
+
+### Fixed
+- Connected the Settings → Plugins enable switch to the live timeline overlay store, so disabling the plugin immediately removes the right-side trigger and panel.
+- Added a regression test for live enabled-state subscribers.
+
 ## [0.3.0] - 2026-08-16
 
 ### Added

@@ -230,9 +230,8 @@ function initialCollapsedTurns(points) {
   return collapsed
 }
 
-function RailPanel({ sessions, locale, useSessions }) {
+function RailPanel({ sessions, locale, useSessions, store }) {
   const storage = React.useMemo(() => safeStorage(), [])
-  const store = React.useMemo(() => createAppStore(storage), [storage])
   const bookmarks = React.useMemo(() => createBookmarkStore(storage), [storage])
   const lang = useLanguage(locale)
   const t = React.useCallback((key) => panelDictionaries[lang]?.[key] || key, [lang])
@@ -669,7 +668,7 @@ export function apply(ctx) {
 
   slots.inject('shell.overlay', () => slots.register(
     { name: 'shell.overlay', id: 'timeline-navigator-rail', order: 10 },
-    (props) => React.createElement(RailPanel, { sessions, locale, useSessions: props.useSessions }),
+    (props) => React.createElement(RailPanel, { sessions, locale, useSessions: props.useSessions, store }),
   ))
 
   slots.inject('settings.plugin.item', () => slots.register(

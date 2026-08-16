@@ -37,3 +37,14 @@ test('persists enabled state and bookmark toggles', () => {
   assert.equal(bookmarks.toggle('session-1', point).length, 0)
 })
 
+test('notifies live subscribers when enabled state changes', () => {
+  const store = createAppStore(memoryStorage())
+  const states = []
+  const unsubscribe = store.subscribe(() => states.push(store.isEnabled()))
+
+  store.setEnabled(false)
+  store.setEnabled(true)
+  unsubscribe()
+
+  assert.deepEqual(states, [false, true])
+})
