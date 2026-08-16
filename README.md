@@ -1,81 +1,149 @@
-# DeepSeek Harness Timeline Navigator
+# DeepSeek Harness 时间线导航
 
-An accessible conversation timeline for the DeepSeek Harness Web UI. It keeps long conversations navigable without changing the host application.
+[![Quality](https://github.com/7A7K/DSH-Timeline-Navigator/actions/workflows/quality.yml/badge.svg)](https://github.com/7A7K/DSH-Timeline-Navigator/actions/workflows/quality.yml)
+[![Latest release](https://img.shields.io/github/v/release/7A7K/DSH-Timeline-Navigator)](https://github.com/7A7K/DSH-Timeline-Navigator/releases)
+[![License](https://img.shields.io/github/license/7A7K/DSH-Timeline-Navigator)](LICENSE)
 
-## What it does
+一个面向 DeepSeek Harness Web UI 的对话时间线导航插件。它把长对话按回合整理成可搜索、可点击跳转、可收藏的侧边时间线，不修改 Harness 主程序源码。
 
-- Opens from a visible right-edge handle; also works with keyboard focus and touch.
-- Groups messages by turn and highlights the message currently visible in the chat.
-- Searches titles and previews, with a one-click clear action.
-- Jumps to a message even when older history has not been loaded yet.
-- Starts with every turn group collapsed so the overall conversation structure is visible first.
-- Provides one-click Expand all / Collapse all controls for turn groups.
-- Saves bookmarks per conversation with a dedicated star button on every message; long-press remains available as a touch fallback.
-- Keeps the main actions visible and direct: click a message to jump, click its star to bookmark, and press `Escape` to close.
-- Remembers enabled state, width, filter mode, scroll mode, and first-use hint state.
-- Provides a mobile bottom sheet and respects `prefers-reduced-motion`.
-- Uses the host's `ChatSnapshot` and `data-chat-anchor-key` contract rather than scraping raw session events.
+![时间线导航演示图（界面示意）](demo-timeline.svg)
 
-## Project layout
+## 你能用它做什么
 
-```text
-src/
-  index.js                 # host-side entry point
-  client/
-    index.js               # React surface and DSH slot registration
-    model.js               # pure snapshot projection and filtering
-    storage.js             # preferences and bookmarks
-    dom.js                 # scrollport, anchor, and history integration
-    locale.js              # settings and panel copy
-    styles.js              # isolated theme-token CSS
-lib/                       # generated DSH-loadable artifacts
-tests/                     # node:test coverage for pure behavior
-scripts/build.mjs          # esbuild -> __ModuleLoader__.load bundle
-install.ps1
-uninstall.ps1
+- 从聊天右侧可见入口打开时间线，也支持键盘聚焦和移动端触摸。
+- 按 Turn 分组浏览消息，自动高亮当前可见消息。
+- 搜索标题和消息预览，一键清空搜索。
+- 跳转到尚未加载的旧消息时，自动加载历史。
+- 默认合拢回合，支持“展开全部 / 折叠全部”。
+- 点击每条消息右侧星标收藏；移动端长按是备用方式。
+- 一键跳到最早/最新消息，按 `Escape` 关闭面板，拖动左边缘调整宽度。
+- 记住启用状态、面板宽度、过滤模式、滚动模式和首次提示状态。
+- 支持移动端底部面板，并尊重系统的“减少动态效果”设置。
+
+## 安装：从 GitHub 项目链接使用
+
+安装包已经随仓库提供，普通用户不需要 `npm install` 或发布 npm 包。Windows PowerShell 推荐使用下面的方式：
+
+### 方式一：下载仓库后安装
+
+```powershell
+git clone https://github.com/7A7K/DSH-Timeline-Navigator.git
+Set-Location .\DSH-Timeline-Navigator
+.\install.ps1
 ```
 
-`lib/` is generated. Make changes under `src/`, then run `npm run bundle`.
+也可以在 GitHub 点击 **Code → Download ZIP**，解压后在解压目录运行 `.\install.ps1`。
 
-## Local development
+### 方式二：已有安装脚本时，直接从项目链接下载指定版本
 
-Requirements: Node.js 18 or newer.
+```powershell
+.\install.ps1 `
+  -Source 'https://github.com/7A7K/DSH-Timeline-Navigator' `
+  -Version latest
+```
+
+`-Version latest` 会读取 GitHub 最新 Release；也可以固定版本，例如 `-Version v0.3.2`。分支名（如 `main`）和版本 tag 都支持。
+
+安装器会把插件复制到 DSH 的插件目录，创建 Web profile 所需的 junction 和 patch 配置。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+
+如果 DSH 不在默认目录 `%USERPROFILE%\.dsh`，请显式指定：
+
+```powershell
+.\install.ps1 -DshHome 'D:\path\to\.dsh'
+```
+
+## 卸载
+
+在插件目录运行：
+
+```powershell
+.\uninstall.ps1
+```
+
+默认只移除启用链接和 patch，保留源代码以便回滚。确定不再需要源代码时再加 `-RemoveSource`。
+
+## 操作速查
+
+| 操作 | 结果 |
+| --- | --- |
+| 悬停或聚焦右侧入口 | 打开时间线 |
+| 点击消息 | 跳转并居中消息 |
+| 点击消息右侧星标 | 添加/取消收藏 |
+| 点击 Turn 标题 | 展开/折叠该回合 |
+| 展开全部 / 折叠全部 | 批量改变回合状态 |
+| ↑ / ↓ 按钮 | 跳到最早 / 最新消息 |
+| 移动端长按消息 | 收藏备用操作 |
+| `Escape` | 关闭时间线 |
+| 拖动面板左边缘 | 调整面板宽度 |
+
+## 兼容性与隐私边界
+
+- 目标为 DSH Web client `rc.6` 及更新的插件合约。
+- 依赖 Harness 提供的 `ChatSnapshot` 和 `data-chat-anchor-key`，不抓取原始 session 事件。
+- 插件只拥有自己的 overlay 和 settings slots；禁用或卸载不会修改宿主源码。
+- 安装脚本需要 Windows PowerShell 和一个已经存在的 DSH home；最终用户不需要 Node.js。
+
+## 本地开发
+
+开发和打包需要 Node.js 18 或更新版本：
 
 ```powershell
 npm install
-npm run check
 npm run bundle
+npm run check
 ```
 
-The bundle is emitted in the same `window.__ModuleLoader__.load` format used by first-party DSH plugins. Runtime dependencies such as React and DSH client packages remain external.
-
-## Installation into Harness
-
-From a local checkout:
+源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。UI 冒烟测试需要本地 Harness 正在运行并有非空会话：
 
 ```powershell
-.\install.ps1 -Source (Get-Location).Path
+npm run smoke
 ```
 
-For a GitHub checkout, pass the repository URL to the installer. The installer creates the profile junction and adds an idempotent row to `cordis.patch.yml`.
+## English
 
-After installation, reload `http://127.0.0.1:3080/`. If the web process is already running with an old bundle, restart it once.
+### DeepSeek Harness Timeline Navigator
 
-## Interaction guide
+An accessible conversation timeline for the DeepSeek Harness Web UI. It turns long conversations into a searchable, clickable, bookmarkable side panel without modifying Harness source code.
 
-| Action | Result |
-| --- | --- |
-| Hover/focus the right edge | Open the timeline |
-| Click a message | Center that message in chat |
-| Click the star on a message | Add/remove that bookmark |
-| Click a turn header | Collapse/expand that turn |
-| Expand all / Collapse all | Change every turn group at once |
-| ↑ button | Jump to the earliest message |
-| ↓ button | Jump to the latest message |
-| Long-press a message on touch | Add/remove a bookmark (fallback) |
-| `Escape` | Close the timeline |
-| Drag the left rail edge | Resize the panel |
+### Features
 
-## Compatibility
+- Visible right-edge trigger with keyboard-focus and touch support.
+- Turn-based grouping with the currently visible message highlighted.
+- Search over titles and previews with one-click clear.
+- Automatic history loading when jumping to an older unloaded message.
+- Collapsed turn groups by default, plus Expand all / Collapse all.
+- Explicit star controls for bookmarks, with touch long-press as a fallback.
+- Earliest/latest navigation, `Escape` to close, and draggable panel width.
+- Persistent enabled state, width, filter mode, scroll mode, and first-use hint state.
+- Mobile bottom sheet and `prefers-reduced-motion` support.
 
-The plugin targets the DSH Web client plugin contracts used by the `rc.6` client runtime line and newer. It only owns its overlay and settings slots, so disabling or uninstalling it does not modify host source files.
+### Install from GitHub
+
+The repository includes the built plugin artifact; end users do not need npm:
+
+```powershell
+git clone https://github.com/7A7K/DSH-Timeline-Navigator.git
+Set-Location .\DSH-Timeline-Navigator
+.\install.ps1
+```
+
+To install directly from a public repository URL, pass `-Version main`, a version tag such as `v0.3.2`, or `-Version latest` to resolve the latest GitHub Release. Reload `http://127.0.0.1:3080/` after installation and restart the DSH Web process if an old bundle remains loaded.
+
+### Compatibility and development
+
+The plugin targets the DSH Web client `rc.6` contract line and newer. It uses the host `ChatSnapshot` and `data-chat-anchor-key` contracts, owns only its overlay and settings slots, and does not scrape raw session events. Developers need Node.js 18+:
+
+```powershell
+npm install
+npm run bundle
+npm run check
+```
+
+## Links
+
+- [GitHub repository](https://github.com/7A7K/DSH-Timeline-Navigator)
+- [Latest release](https://github.com/7A7K/DSH-Timeline-Navigator/releases/latest)
+- [dsh-plugin topic](https://github.com/topics/dsh-plugin)
+- [中文单语版说明](README.zh-CN.md)
+
+MIT License.

@@ -2,6 +2,13 @@
 
 All notable changes to `@deepseek-ai/dsh-client-ui-timeline-navigator`.
 
+## [0.3.2] - 2026-08-16
+
+### Improved
+- Made GitHub installation work with branches, version tags, and the latest release.
+- Made the release workflow safe to rerun and attach the generated `.tgz` package to an existing release.
+- Added repository metadata and a Chinese-first bilingual project guide.
+
 ## [0.3.1] - 2026-08-16
 
 ### Fixed

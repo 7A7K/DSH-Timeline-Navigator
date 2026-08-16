@@ -3,7 +3,7 @@
 # Local checkout:
 #   .\install.ps1 -Source (Get-Location).Path
 # GitHub checkout:
-#   .\install.ps1 -Source 'https://github.com/<owner>/<repo>' -Version main
+#   .\install.ps1 -Source 'https://github.com/<owner>/<repo>' -Version latest
 
 [CmdletBinding()]
 param(
@@ -24,20 +24,36 @@ $nodeModules = Join-Path $DshHome 'profiles\node_modules'
 $linkPath = Join-Path $nodeModules $plugin
 $patchFile = Join-Path $DshHome "profiles\$Profile\cordis.patch.yml"
 $staging = Join-Path $pluginsDir ".timeline-navigator-staging-$([guid]::NewGuid().ToString('N'))"
+$downloadedZip = $null
 $sourceDir = $null
 
 try {
     New-Item -ItemType Directory -Force -Path $pluginsDir, $nodeModules, (Split-Path $linkPath -Parent), (Split-Path $patchFile -Parent) | Out-Null
 
-    if ($Source -match '^(https?://|git@|ssh://|github:)') {
-        $repo = $Source.TrimEnd('/').TrimEnd('.git')
-        $zip = Join-Path $pluginsDir 'timeline-navigator.zip'
-        $archive = "$repo/archive/refs/heads/$Version.zip"
+    if ($Source -match '^https?://') {
+        $repo = $Source.TrimEnd('/')
+        if ($repo -match '\.git$') { $repo = $repo.Substring(0, $repo.Length - 4) }
+        if ($repo -notmatch '^https://github\.com/[^/]+/[^/]+$') {
+            throw "GitHub HTTPS repository URL expected: $Source"
+        }
+
+        $ref = $Version
+        if ($Version -eq 'latest') {
+            $repoPath = $repo -replace '^https://github\.com/', ''
+            $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoPath/releases/latest" -Headers @{ 'User-Agent' = 'DSH-Timeline-Navigator-installer' }
+            $ref = [string]$release.tag_name
+            if (-not $ref) { throw "Could not resolve the latest GitHub release for $repo" }
+        }
+
+        $refType = if ($ref -match '^v?\d+\.\d+\.\d+(?:[-+].*)?$') { 'tags' } else { 'heads' }
+        $downloadedZip = Join-Path $pluginsDir ".timeline-navigator-$([guid]::NewGuid().ToString('N')).zip"
+        $archive = "$repo/archive/refs/$refType/$ref.zip"
         Write-Host "Downloading $archive" -ForegroundColor Cyan
-        Invoke-WebRequest -Uri $archive -OutFile $zip -UseBasicParsing
+        Invoke-WebRequest -Uri $archive -OutFile $downloadedZip -UseBasicParsing
         New-Item -ItemType Directory -Force -Path $staging | Out-Null
-        Expand-Archive -LiteralPath $zip -DestinationPath $staging -Force
-        Remove-Item -LiteralPath $zip -Force
+        Expand-Archive -LiteralPath $downloadedZip -DestinationPath $staging -Force
+        Remove-Item -LiteralPath $downloadedZip -Force
+        $downloadedZip = $null
         $sourceDir = (Get-ChildItem -LiteralPath $staging -Directory | Select-Object -First 1).FullName
     } else {
         $sourceDir = (Resolve-Path -LiteralPath $Source).Path
@@ -82,5 +98,5 @@ try {
     Write-Host 'Reload http://127.0.0.1:3080/ (restart the dsh web process if the old bundle remains).' -ForegroundColor Yellow
 } finally {
     if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+    if ($downloadedZip -and (Test-Path -LiteralPath $downloadedZip)) { Remove-Item -LiteralPath $downloadedZip -Force }
 }
-

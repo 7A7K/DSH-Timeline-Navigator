@@ -1,7 +1,9 @@
 # Release guide
 
 This project uses version tags to create GitHub Releases. The release workflow validates the
-bundle, packages the plugin, and attaches the `.tgz` artifact to the release.
+bundle, packages the plugin, and attaches the `.tgz` artifact to the release. It is safe to rerun:
+if a release with the same tag already exists, the workflow uploads the package again with
+`--clobber` instead of failing on duplicate release creation.
 
 ## First-time GitHub setup
 
@@ -25,13 +27,13 @@ Update `CHANGELOG.md`, then run the checks and create a version tag:
 npm version patch --no-git-tag-version
 npm run bundle
 npm run check
-git add package.json package-lock.json CHANGELOG.md lib/client.js src README.md README.zh-CN.md
+git add package.json package-lock.json CHANGELOG.md lib/client.js src README.md README.zh-CN.md demo-timeline.svg
 git commit -m "release: v<version>"
 git tag v<version>
 git push origin main --follow-tags
 ```
 
-Pushing a tag such as `v0.3.0` starts `.github/workflows/release.yml`. The resulting GitHub
+Pushing a tag such as `v0.3.2` starts `.github/workflows/release.yml`. The resulting GitHub
 Release includes generated notes and the installable plugin package.
 
 ## UI smoke test before release
