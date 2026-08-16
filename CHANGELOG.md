@@ -9,6 +9,10 @@ All notable changes to `@deepseek-ai/dsh-client-ui-timeline-navigator`.
 - Added the same language switcher to the Settings → Plugins card so both surfaces stay in sync.
 - Localized timeline controls, status messages, tool labels, previews, and accessibility labels.
 
+### Fixed
+- Removed the visible panel title so the top controls have enough room.
+- Set a shared minimum panel width and fixed top-button sizes so Chinese and English labels remain fully usable.
+
 ## [0.3.3] - 2026-08-16
 
 ### Added

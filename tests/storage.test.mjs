@@ -14,6 +14,8 @@ function memoryStorage() {
 test('persists timeline preferences and clamps width', () => {
   const storage = memoryStorage()
   const store = createAppStore(storage)
+  store.setWidth(100)
+  assert.equal(store.getWidth(), 280)
   store.setWidth(999)
   store.toggleSmooth()
   store.toggleFilterMode()

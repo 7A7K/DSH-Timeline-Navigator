@@ -46,6 +46,18 @@ try {
   if (panelBox) await page.mouse.move(panelBox.x + 20, panelBox.y + 100)
   await panel.waitFor({ state: 'visible', timeout })
 
+  const headerLayout = await panel.locator('.tlnav-header').evaluate((header) => {
+    const headerBox = header.getBoundingClientRect()
+    const buttons = [...header.querySelectorAll('button')].map((button) => {
+      const box = button.getBoundingClientRect()
+      return { left: box.left, right: box.right }
+    })
+    return { left: headerBox.left, right: headerBox.right, width: headerBox.width, buttonCount: buttons.length, buttons }
+  })
+  if (headerLayout.width < 256 || headerLayout.buttonCount !== 6 || headerLayout.buttons.some((button) => button.left < headerLayout.left || button.right > headerLayout.right)) {
+    throw new Error('Header controls do not fit inside the minimum panel width.')
+  }
+
   const turns = panel.locator('.tlnav-turn')
   const turnCount = await turns.count()
   if (!turnCount) throw new Error('No turn groups found. Open a non-empty Harness conversation before running the smoke test.')

@@ -4,6 +4,8 @@ export const STORAGE_PREFIX = 'dsh-timeline-navigator'
 export const ENABLED_KEY = `${STORAGE_PREFIX}:enabled:v2`
 export const PREFERENCES_KEY = `${STORAGE_PREFIX}:preferences:v1`
 export const BOOKMARKS_KEY = `${STORAGE_PREFIX}:bookmarks:v1:`
+export const MIN_PANEL_WIDTH = 280
+export const MAX_PANEL_WIDTH = 420
 
 export function safeStorage() {
   try {
@@ -33,7 +35,7 @@ function writeJson(storage, key, value) {
 }
 
 const DEFAULT_PREFERENCES = Object.freeze({
-  width: 240,
+  width: MIN_PANEL_WIDTH,
   smooth: true,
   filterMode: 'messages',
   hintSeen: false,
@@ -43,7 +45,7 @@ const DEFAULT_PREFERENCES = Object.freeze({
 export function loadPreferences(storage = safeStorage()) {
   const raw = readJson(storage, PREFERENCES_KEY, {})
   return {
-    width: clampNumber(raw?.width, 180, 420, DEFAULT_PREFERENCES.width),
+    width: clampNumber(raw?.width, MIN_PANEL_WIDTH, MAX_PANEL_WIDTH, DEFAULT_PREFERENCES.width),
     smooth: raw?.smooth !== false,
     filterMode: raw?.filterMode === 'all' ? 'all' : DEFAULT_PREFERENCES.filterMode,
     hintSeen: raw?.hintSeen === true,
@@ -78,7 +80,7 @@ export function createAppStore(storage = safeStorage()) {
     isEnabled: () => enabled,
     isHintSeen: () => hintSeen,
     setWidth(value) {
-      const next = clampNumber(value, 180, 420, width)
+      const next = clampNumber(value, MIN_PANEL_WIDTH, MAX_PANEL_WIDTH, width)
       if (next !== width) {
         width = next
         persist()

@@ -9,6 +9,7 @@ import {
 import {
   createAppStore,
   createBookmarkStore,
+  MIN_PANEL_WIDTH,
   safeStorage,
 } from './storage.js'
 import {
@@ -610,7 +611,7 @@ function RailPanel({ sessions, locale, useSessions, store }) {
       {
         className: 'tlnav-panel',
         'data-open': open ? 'true' : 'false',
-        style: { width: `${width}px`, '--tlnav-top': `${railTop}px` },
+        style: { width: `${Math.max(MIN_PANEL_WIDTH, width)}px`, '--tlnav-top': `${railTop}px` },
         role: 'complementary',
         'aria-label': t('title'),
         'aria-hidden': open ? undefined : 'true',
@@ -624,7 +625,6 @@ function RailPanel({ sessions, locale, useSessions, store }) {
       React.createElement(
         'div',
         { className: 'tlnav-header' },
-        React.createElement('span', { className: 'tlnav-title' }, t('title')),
         running ? React.createElement('span', { className: 'tlnav-running', title: t('running'), 'aria-label': t('running') }) : null,
         React.createElement(
           'button',
@@ -641,11 +641,11 @@ function RailPanel({ sessions, locale, useSessions, store }) {
           React.createElement('span', { 'aria-hidden': 'true' }, '/'),
           React.createElement('span', { 'data-active': lang === 'en' ? 'true' : 'false' }, 'EN'),
         ),
-        React.createElement('button', { type: 'button', className: 'tlnav-btn', 'aria-pressed': pinned, onClick: () => setPinned((value) => !value), title: t('pin'), 'aria-label': t('pin'), 'data-tooltip': t('pin') }, '📌'),
-        React.createElement('button', { type: 'button', className: 'tlnav-btn', 'aria-pressed': mode === 'all', onClick: () => store.toggleFilterMode(), title: mode === 'messages' ? t('showAll') : t('showMessages'), 'aria-label': mode === 'messages' ? t('showAll') : t('showMessages'), 'data-tooltip': mode === 'messages' ? t('showAll') : t('showMessages') }, mode === 'messages' ? t('messages') : t('all')),
-        React.createElement('button', { type: 'button', className: 'tlnav-btn', 'aria-pressed': smooth, onClick: () => store.toggleSmooth(), title: smooth ? t('smooth') : t('jump'), 'aria-label': smooth ? t('smooth') : t('jump'), 'data-tooltip': smooth ? t('smooth') : t('jump') }, smooth ? '↝' : '↣'),
-        React.createElement('button', { type: 'button', className: 'tlnav-btn', onClick: jumpToEarliest, title: t('earliest'), 'aria-label': t('earliest'), 'data-tooltip': t('earliest'), 'data-action': 'jump-earliest' }, '↑'),
-        React.createElement('button', { type: 'button', className: 'tlnav-btn', onClick: jumpToLatest, title: t('latest'), 'aria-label': t('latest'), 'data-tooltip': t('latest'), 'data-action': 'jump-latest' }, '↓'),
+        React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-pin', 'aria-pressed': pinned, onClick: () => setPinned((value) => !value), title: t('pin'), 'aria-label': t('pin'), 'data-tooltip': t('pin') }, '📌'),
+        React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-filter', 'aria-pressed': mode === 'all', onClick: () => store.toggleFilterMode(), title: mode === 'messages' ? t('showAll') : t('showMessages'), 'aria-label': mode === 'messages' ? t('showAll') : t('showMessages'), 'data-tooltip': mode === 'messages' ? t('showAll') : t('showMessages') }, mode === 'messages' ? t('messages') : t('all')),
+        React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-scroll-mode', 'aria-pressed': smooth, onClick: () => store.toggleSmooth(), title: smooth ? t('smooth') : t('jump'), 'aria-label': smooth ? t('smooth') : t('jump'), 'data-tooltip': smooth ? t('smooth') : t('jump') }, smooth ? '↝' : '↣'),
+        React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-boundary', onClick: jumpToEarliest, title: t('earliest'), 'aria-label': t('earliest'), 'data-tooltip': t('earliest'), 'data-action': 'jump-earliest' }, '↑'),
+        React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-boundary', onClick: jumpToLatest, title: t('latest'), 'aria-label': t('latest'), 'data-tooltip': t('latest'), 'data-action': 'jump-latest' }, '↓'),
       ),
       React.createElement(
         'div',
