@@ -1,6 +1,6 @@
 {
   "name": "@deepseek-ai/dsh-client-ui-timeline-navigator",
-  "description": "A discoverable, accessible conversation timeline for DeepSeek Harness with turn navigation, bookmarks, history loading, and mobile support.",
+  "description": "A discoverable, accessible conversation timeline for DeepSeek Harness with bookmarks, history loading, and mobile support.",
   "version": "0.3.4",
   "author": "7A7K",
   "repository": {

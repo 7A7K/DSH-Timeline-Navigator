@@ -12,7 +12,6 @@ All notable changes to `@deepseek-ai/dsh-client-ui-timeline-navigator`.
 ### Fixed
 - Removed the visible panel title so the top controls have enough room.
 - Set a shared minimum panel width and fixed top-button sizes so Chinese and English labels remain fully usable.
-- Replaced the low-value message search bar with quick turn navigation and previous/next turn controls.
 
 ## [0.3.3] - 2026-08-16
 
