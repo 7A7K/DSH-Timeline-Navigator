@@ -308,7 +308,6 @@ function RailPanel({ sessions, locale, useSessions, store }) {
 
   const [open, setOpen] = React.useState(false)
   const [pinned, setPinned] = React.useState(false)
-  const [search, setSearch] = React.useState('')
   const [activeKey, setActiveKey] = React.useState(null)
   const [cursor, setCursor] = React.useState(null)
   const [preview, setPreview] = React.useState(null)
@@ -324,8 +323,13 @@ function RailPanel({ sessions, locale, useSessions, store }) {
   const dragging = React.useRef(false)
   const loadingOlder = React.useRef(false)
 
-  const visiblePoints = React.useMemo(() => filterNavPoints(navPoints, mode, search), [navPoints, mode, search])
+  const visiblePoints = React.useMemo(() => filterNavPoints(navPoints, mode, ''), [navPoints, mode])
   const groups = React.useMemo(() => groupNavPoints(visiblePoints), [visiblePoints])
+  const turnGroups = React.useMemo(() => groups.filter((group) => group.turn != null && group.items.length > 0), [groups])
+  const activePoint = navPoints.find((point) => point.key === activeKey) || navPoints.find((point) => point.key === cursor)
+  const activeTurn = activePoint?.turn ?? null
+  const activeTurnIndex = turnGroups.findIndex((group) => group.turn === activeTurn)
+  const selectedTurn = activeTurnIndex >= 0 ? String(activeTurn) : ''
 
   React.useEffect(() => {
     if (!sessionId) return undefined
@@ -337,7 +341,6 @@ function RailPanel({ sessions, locale, useSessions, store }) {
     setCollapsed(initialCollapsedTurns(navPoints))
     setOpen(false)
     setPinned(false)
-    setSearch('')
     setPreview(null)
     return undefined
   }, [sessionId, bookmarks])
@@ -487,9 +490,24 @@ function RailPanel({ sessions, locale, useSessions, store }) {
     document.addEventListener('pointerup', onUp)
   }
 
+  function navigateToTurn(turn) {
+    const group = turnGroups.find((item) => item.turn === turn)
+    const point = group?.items[0]
+    if (!point) return
+    setCollapsed((previous) => previous[group.turn] ? { ...previous, [group.turn]: false } : previous)
+    navigate(point)
+  }
+
+  function navigateRelativeTurn(direction) {
+    if (!turnGroups.length) return
+    const index = activeTurnIndex < 0
+      ? direction > 0 ? 0 : turnGroups.length - 1
+      : Math.max(0, Math.min(turnGroups.length - 1, activeTurnIndex + direction))
+    navigateToTurn(turnGroups[index].turn)
+  }
+
   async function jumpToEarliest() {
     if (!session) return
-    setSearch('')
     let targetKey = navPoints.at(0)?.key
     const initialSnapshot = session.getSnapshot?.()
     if (navPoints.at(0)?.turn === 1 || !initialSnapshot?.hasMore) {
@@ -522,7 +540,6 @@ function RailPanel({ sessions, locale, useSessions, store }) {
   function jumpToLatest() {
     const point = navPoints.at(-1)
     if (!point) return
-    setSearch('')
     navigate(point)
   }
 
@@ -573,7 +590,7 @@ function RailPanel({ sessions, locale, useSessions, store }) {
       nav: point,
       active: false,
       bookmarked: true,
-      onNavigate: (item) => { setSearch(''); navigate(item) },
+      onNavigate: navigate,
       onToggleBookmark: toggleBookmark,
       onHover: (pointValue, rect) => setPreview({ nav: pointValue, rect }),
       onLeave: () => setPreview(null),
@@ -584,7 +601,7 @@ function RailPanel({ sessions, locale, useSessions, store }) {
   const listContent = navPoints.length === 0
     ? React.createElement('div', { className: 'tlnav-empty' }, t('empty'))
     : visiblePoints.length === 0
-      ? React.createElement('div', { className: 'tlnav-empty' }, search.trim() ? t('noSearch') : t('noNodes'))
+      ? React.createElement('div', { className: 'tlnav-empty' }, t('noNodes'))
       : rows
 
   return React.createElement(
@@ -647,13 +664,28 @@ function RailPanel({ sessions, locale, useSessions, store }) {
         React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-boundary', onClick: jumpToEarliest, title: t('earliest'), 'aria-label': t('earliest'), 'data-tooltip': t('earliest'), 'data-action': 'jump-earliest' }, '↑'),
         React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-boundary', onClick: jumpToLatest, title: t('latest'), 'aria-label': t('latest'), 'data-tooltip': t('latest'), 'data-action': 'jump-latest' }, '↓'),
       ),
-      React.createElement(
-        'div',
-        { className: 'tlnav-search-row' },
-        React.createElement('input', { className: 'tlnav-search', type: 'search', placeholder: t('search'), 'aria-label': t('search'), value: search, onChange: (event) => setSearch(event.target.value) }),
-        search ? React.createElement('button', { type: 'button', className: 'tlnav-btn tlnav-clear', onClick: () => setSearch(''), title: t('clearSearch'), 'aria-label': t('clearSearch') }, '×') : null,
-      ),
-      groups.some((group) => group.turn != null)
+      turnGroups.length
+        ? React.createElement(
+          'div',
+          { className: 'tlnav-turn-jump', role: 'navigation', 'aria-label': t('turnNavigation') },
+          React.createElement('button', { type: 'button', className: 'tlnav-turn-nav', onClick: () => navigateRelativeTurn(-1), disabled: activeTurnIndex <= 0, title: t('previousTurn'), 'aria-label': t('previousTurn'), 'data-action': 'previous-turn' }, '‹'),
+          React.createElement(
+            'select',
+            {
+              className: 'tlnav-turn-select',
+              value: selectedTurn,
+              onChange: (event) => navigateToTurn(Number(event.target.value)),
+              title: t('selectTurn'),
+              'aria-label': t('selectTurn'),
+            },
+            React.createElement('option', { value: '', disabled: true }, t('selectTurn')),
+            turnGroups.map((group) => React.createElement('option', { key: `jump-turn-${group.turn}`, value: String(group.turn) }, `${t('turnLabel')} ${group.turn}`)),
+          ),
+          React.createElement('span', { className: 'tlnav-turn-progress', 'aria-label': `${t('currentTurn')} ${activeTurn ?? '—'} / ${turnGroups.length}` }, `${activeTurn ?? '—'} / ${turnGroups.length}`),
+          React.createElement('button', { type: 'button', className: 'tlnav-turn-nav', onClick: () => navigateRelativeTurn(1), disabled: activeTurnIndex >= turnGroups.length - 1, title: t('nextTurn'), 'aria-label': t('nextTurn'), 'data-action': 'next-turn' }, '›'),
+        )
+        : null,
+      turnGroups.length
         ? React.createElement(
           'div',
           { className: 'tlnav-turn-actions', role: 'toolbar', 'aria-label': t('turnActions') },

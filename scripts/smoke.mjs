@@ -69,13 +69,21 @@ try {
   await waitForState()
   const afterLanguage = await languageToggle.getAttribute('data-language')
   if (!afterLanguage || afterLanguage === beforeLanguage) throw new Error('Language switcher did not change the active language.')
-  const expectedPlaceholder = afterLanguage === 'zh' ? '搜索消息' : 'Search messages'
-  if (await panel.locator('.tlnav-search').getAttribute('placeholder') !== expectedPlaceholder) {
-    throw new Error(`Language switcher did not update the search placeholder to ${expectedPlaceholder}.`)
+  const expectedTurnLabel = afterLanguage === 'zh' ? '跳转到回合' : 'Jump to a turn'
+  if (await panel.locator('.tlnav-turn-select').getAttribute('aria-label') !== expectedTurnLabel) {
+    throw new Error(`Language switcher did not update the turn selector to ${expectedTurnLabel}.`)
   }
   await languageToggle.click()
   await waitForState()
   if (await languageToggle.getAttribute('data-language') !== beforeLanguage) throw new Error('Language switcher did not toggle back.')
+
+  const turnJump = panel.locator('.tlnav-turn-jump')
+  const turnSelect = turnJump.locator('.tlnav-turn-select')
+  if (await turnJump.count() !== 1 || await turnSelect.count() !== 1) throw new Error('Quick turn navigation is missing.')
+  if (await turnJump.locator('[data-action="previous-turn"]').count() !== 1 || await turnJump.locator('[data-action="next-turn"]').count() !== 1) {
+    throw new Error('Previous/next turn controls are missing.')
+  }
+  if (await turnSelect.locator('option').count() < 2) throw new Error('Quick turn selector has no turn options.')
 
   const initiallyCollapsed = await expandedValues(panel)
   if (initiallyCollapsed.some((value) => value !== 'false')) {

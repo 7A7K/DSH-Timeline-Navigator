@@ -4,7 +4,7 @@
 [![Latest release](https://img.shields.io/github/v/release/7A7K/DSH-Timeline-Navigator)](https://github.com/7A7K/DSH-Timeline-Navigator/releases)
 [![License](https://img.shields.io/github/license/7A7K/DSH-Timeline-Navigator)](LICENSE)
 
-一个面向 DeepSeek Harness Web UI 的对话时间线导航插件。它把长对话按回合整理成可搜索、可点击跳转、可收藏的侧边时间线，不修改 Harness 主程序源码。
+一个面向 DeepSeek Harness Web UI 的对话时间线导航插件。它把长对话按回合整理成可点击跳转、可收藏，并支持快速回合导航的侧边时间线，不修改 Harness 主程序源码。
 
 ![时间线导航演示图（界面示意）](demo-timeline.svg)
 
@@ -12,12 +12,12 @@
 
 - 从聊天右侧可见入口打开时间线，也支持键盘聚焦和移动端触摸。
 - 按 Turn 分组浏览消息，自动高亮当前可见消息。
-- 搜索标题和消息预览，一键清空搜索。
+- 通过回合选择器和前后回合按钮快速定位长对话中的任意回合。
 - 跳转到尚未加载的旧消息时，自动加载历史。
 - 默认合拢回合，支持“展开全部 / 折叠全部”。
 - 点击每条消息右侧星标收藏；移动端长按是备用方式。
 - 一键跳到最早/最新消息，按 `Escape` 关闭面板，拖动左边缘调整宽度。
-- 面板标题栏和设置页插件卡片都提供 `中 / EN` 按钮；切换后标题、搜索、收藏、跳转、展开/折叠和状态提示会同步切换语言，并自动记住选择。
+- 面板标题栏和设置页插件卡片都提供 `中 / EN` 按钮；切换后标题、收藏、跳转、展开/折叠和状态提示会同步切换语言，并自动记住选择。
 - 记住启用状态、面板宽度、过滤模式、滚动模式和首次提示状态。
 - 支持移动端底部面板，并尊重系统的“减少动态效果”设置。
 
@@ -81,6 +81,7 @@ Set-Location .\DSH-Timeline-Navigator
 | --- | --- |
 | 悬停或聚焦右侧入口 | 打开时间线 |
 | 点击消息 | 跳转并居中消息 |
+| 回合选择器 / ‹ › 按钮 | 跳转到指定或相邻回合 |
 | 点击消息右侧星标 | 添加/取消收藏 |
 | 点击 Turn 标题 | 展开/折叠该回合 |
 | 展开全部 / 折叠全部 | 批量改变回合状态 |
@@ -116,13 +117,13 @@ npm run smoke
 
 ### DeepSeek Harness Timeline Navigator
 
-An accessible conversation timeline for the DeepSeek Harness Web UI. It turns long conversations into a searchable, clickable, bookmarkable side panel without modifying Harness source code.
+An accessible conversation timeline for the DeepSeek Harness Web UI. It turns long conversations into a clickable, bookmarkable side panel with quick turn navigation without modifying Harness source code.
 
 ### Features
 
 - Visible right-edge trigger with keyboard-focus and touch support.
 - Turn-based grouping with the currently visible message highlighted.
-- Search over titles and previews with one-click clear.
+- Quick turn selector with previous/next controls for long conversations.
 - Automatic history loading when jumping to an older unloaded message.
 - Collapsed turn groups by default, plus Expand all / Collapse all.
 - Explicit star controls for bookmarks, with touch long-press as a fallback.
