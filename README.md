@@ -28,12 +28,6 @@
 dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator
 ```
 
-安装指定版本时，在项目链接后加 tag：
-
-```powershell
-dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator#v0.3.3
-```
-
 首次安装会自动把插件加入 `web` profile。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
 
 本项目已经包含可直接加载的 `lib/` 构建产物，并声明了 Harness 所需的 `dsh.bundle` 清单，因此用户不需要先下载仓库、执行 `npm install` 或手动编写 patch。
@@ -52,7 +46,7 @@ Set-Location .\DSH-Timeline-Navigator
 
 也可以在 GitHub 点击 **Code → Download ZIP**，解压后在解压目录运行 `.\install.ps1`。
 
-### 方式二：已有安装脚本时，直接从项目链接下载指定版本
+### 方式二：使用备用 PowerShell 安装脚本
 
 ```powershell
 .\install.ps1 `
@@ -60,7 +54,7 @@ Set-Location .\DSH-Timeline-Navigator
   -Version latest
 ```
 
-`-Version latest` 会读取 GitHub 最新 Release；也可以固定版本，例如 `-Version v0.3.3`。分支名（如 `main`）和版本 tag 都支持。
+`-Version latest` 会读取 GitHub 最新 Release；分支名（如 `main`）和版本 tag 都支持。
 
 安装器会把插件复制到 DSH 的插件目录，创建 Web profile 所需的 junction 和 patch 配置。
 
@@ -141,12 +135,6 @@ The recommended Harness-native installation is:
 
 ```powershell
 dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator
-```
-
-To pin a release:
-
-```powershell
-dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator#v0.3.3
 ```
 
 The package declares the required `dsh.bundle.patch` manifest and includes the built `lib/` artifact, so end users do not need to clone the repository or run npm:

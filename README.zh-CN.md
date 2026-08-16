@@ -26,13 +26,7 @@
 dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator
 ```
 
-Harness 会从 GitHub 获取并安装插件。安装指定版本时，在项目链接后加 tag：
-
-```powershell
-dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator#v0.3.3
-```
-
-本项目已包含可直接加载的 `lib/` 构建产物，并声明了 Harness 所需的 `dsh.bundle` 清单，因此不需要先下载仓库、执行 `npm install` 或手动编写 patch。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+Harness 会从 GitHub 获取并安装插件。本项目已包含可直接加载的 `lib/` 构建产物，并声明了 Harness 所需的 `dsh.bundle` 清单，因此不需要先下载仓库、执行 `npm install` 或手动编写 patch。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
 
 ### 备用方式：PowerShell 安装脚本
 
@@ -46,7 +40,7 @@ Set-Location .\DSH-Timeline-Navigator
 
 也可以在 GitHub 点击 **Code → Download ZIP**，解压后运行 `.\install.ps1`。
 
-从项目链接下载指定版本：
+从项目链接安装：
 
 ```powershell
 .\install.ps1 `
@@ -54,7 +48,7 @@ Set-Location .\DSH-Timeline-Navigator
   -Version latest
 ```
 
-`latest` 会读取最新 Release；也可以指定 `v0.3.3` 或分支名 `main`。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+`latest` 会读取最新 Release；分支名（如 `main`）和版本 tag 都支持。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
 
 如果 DSH 不在默认目录 `%USERPROFILE%\.dsh`：
 
