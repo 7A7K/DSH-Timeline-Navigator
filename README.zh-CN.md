@@ -83,6 +83,8 @@ Set-Location .\DSH-Timeline-Navigator
 - 目标为 DSH Web client `rc.6` 及更新的插件合约。
 - 使用 Harness 的 `ChatSnapshot` 和 `data-chat-anchor-key`，不抓取原始 session 事件。
 - 只拥有自己的 overlay 和 settings slots；禁用或卸载不会修改宿主源码。
+- CI 会检查宿主 DOM 定位、历史消息加载、插件 manifest、overlay slot 和设置页 slot，尽早发现 Harness 合约变化。
+- `npm run smoke` 仍需要正在运行且有非空会话的 Harness，用于真实 UI 验证，不作为 GitHub Actions 的必需前置条件。
 - 最终用户只需要 Windows PowerShell 和已经存在的 DSH home，不需要 Node.js。
 
 ## 开发
@@ -95,4 +97,4 @@ npm run bundle
 npm run check
 ```
 
-源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。
+源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。`npm run check` 会检查版本元数据、生成 bundle 的语法和模型、存储、宿主契约测试。

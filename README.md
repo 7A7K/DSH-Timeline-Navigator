@@ -93,6 +93,8 @@ Set-Location .\DSH-Timeline-Navigator
 - 目标为 DSH Web client `rc.6` 及更新的插件合约。
 - 依赖 Harness 提供的 `ChatSnapshot` 和 `data-chat-anchor-key`，不抓取原始 session 事件。
 - 插件只拥有自己的 overlay 和 settings slots；禁用或卸载不会修改宿主源码。
+- CI 会验证宿主 DOM 定位、历史消息加载、插件 manifest、overlay slot 和设置页 slot 的集成契约；这些检查用于尽早发现 Harness 合约变化。
+- `npm run smoke` 仍需要一个正在运行且有非空会话的 Harness，用于最终的真实 UI 验证；它不是 GitHub Actions 的必需前置条件。
 - 安装脚本需要 Windows PowerShell 和一个已经存在的 DSH home；最终用户不需要 Node.js。
 
 ## 本地开发
@@ -105,7 +107,9 @@ npm run bundle
 npm run check
 ```
 
-源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。UI 冒烟测试需要本地 Harness 正在运行并有非空会话：
+源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。`npm run check` 会检查版本元数据、生成 bundle 的语法和模型、存储、宿主契约测试。
+
+UI 冒烟测试需要本地 Harness 正在运行并有非空会话：
 
 ```powershell
 npm run smoke
@@ -149,13 +153,15 @@ Reload `http://127.0.0.1:3080/` after installation and restart the DSH Web proce
 
 ### Compatibility and development
 
-The plugin targets the DSH Web client `rc.6` contract line and newer. It uses the host `ChatSnapshot` and `data-chat-anchor-key` contracts, owns only its overlay and settings slots, and does not scrape raw session events. Developers need Node.js 18+:
+The plugin targets the DSH Web client `rc.6` contract line and newer. It uses the host `ChatSnapshot` and `data-chat-anchor-key` contracts, owns only its overlay and settings slots, and does not scrape raw session events. CI checks DOM location, older-message loading, the plugin manifest, and both UI slot integrations. Developers need Node.js 18+:
 
 ```powershell
 npm install
 npm run bundle
 npm run check
 ```
+
+`npm run smoke` is an optional live Harness UI check and requires a running Harness page with a non-empty conversation.
 
 ## Links
 

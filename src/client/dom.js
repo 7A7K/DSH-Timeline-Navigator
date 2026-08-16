@@ -1,7 +1,11 @@
 /** DOM integration stays isolated from the projection model. */
 
+function getDocument() {
+  return typeof document === 'undefined' ? null : document
+}
+
 export function findScrollport() {
-  return document.querySelector('[data-conversation-scroll]')
+  return getDocument()?.querySelector('[data-conversation-scroll]') ?? null
 }
 
 export function findRow(key) {
@@ -101,4 +105,3 @@ export async function locate(session, targetKey, smooth, delay = wait) {
 function wait(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds))
 }
-

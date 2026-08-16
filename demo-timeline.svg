@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
   <title id="title">DeepSeek Harness Timeline Navigator demo</title>
-  <desc id="desc">Illustrated chat window with a searchable timeline panel on the right.</desc>
+  <desc id="desc">Illustrated chat window with a turn-based timeline panel on the right.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#10233f"/>
@@ -46,11 +46,8 @@
   <text x="350" y="582" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="15" fill="#72859c">在长对话中继续输入……</text>
 
   <rect x="892" y="38" width="266" height="624" rx="20" fill="url(#panel)"/>
-  <text x="922" y="84" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="21" font-weight="700" fill="#f7fbff">时间线</text>
   <rect x="1090" y="62" width="38" height="28" rx="10" fill="#263d5b"/>
   <text x="1101" y="82" font-family="Segoe UI, sans-serif" font-size="15" fill="#b9c9df">↗</text>
-  <rect x="918" y="112" width="206" height="38" rx="11" fill="#213957" stroke="#547292"/>
-  <text x="940" y="137" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="14" fill="#bfd0e3">搜索消息或标题</text>
 
   <rect x="918" y="174" width="206" height="54" rx="12" fill="#203a59"/>
   <text x="940" y="197" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="14" font-weight="700" fill="#eef6ff">▾  Turn 1</text>

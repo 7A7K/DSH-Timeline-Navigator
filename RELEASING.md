@@ -33,8 +33,11 @@ git tag v<version>
 git push origin main --follow-tags
 ```
 
-Pushing a tag such as `v0.3.2` starts `.github/workflows/release.yml`. The resulting GitHub
-Release includes generated notes and the installable plugin package.
+The package version, lockfile version, top `CHANGELOG.md` entry, and tag must match. The quality
+and release workflows check this automatically. For the current pending release, that means
+publishing tag `v0.3.4` from the commit containing the latest UI changes. Pushing the tag starts
+`.github/workflows/release.yml`; the resulting GitHub Release includes generated notes and the
+installable plugin package.
 
 ## UI smoke test before release
 
