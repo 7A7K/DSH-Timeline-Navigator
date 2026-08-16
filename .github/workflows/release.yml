@@ -1,0 +1,32 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run bundle
+      - id: package
+        name: Pack plugin artifact
+        shell: bash
+        run: |
+          package_file="$(npm pack --json | node -e "let data=''; process.stdin.on('data', chunk => data += chunk).on('end', () => process.stdout.write(JSON.parse(data)[0].filename))")"
+          echo "file=$package_file" >> "$GITHUB_OUTPUT"
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" "${{ steps.package.outputs.file }}" --generate-notes
