@@ -2,6 +2,12 @@
 
 All notable changes to `@deepseek-ai/dsh-client-ui-timeline-navigator`.
 
+## [0.3.3] - 2026-08-16
+
+### Added
+- Added the `dsh.bundle.patch` manifest and `cordis.patch.yml` so Harness can install the plugin with `dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator`.
+- Documented Harness-native installation first, with the PowerShell installer retained as a fallback.
+
 ## [0.3.2] - 2026-08-16
 
 ### Improved

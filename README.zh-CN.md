@@ -18,7 +18,23 @@
 - 记住启用状态、面板宽度、过滤模式、滚动模式和首次提示状态。
 - 支持移动端底部面板，并尊重系统的“减少动态效果”设置。
 
-## 安装
+## 安装：让 Harness 直接下载（推荐）
+
+如果已经安装 DeepSeek Harness，直接在终端执行：
+
+```powershell
+dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator
+```
+
+Harness 会从 GitHub 获取并安装插件。安装指定版本时，在项目链接后加 tag：
+
+```powershell
+dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator#v0.3.3
+```
+
+本项目已包含可直接加载的 `lib/` 构建产物，并声明了 Harness 所需的 `dsh.bundle` 清单，因此不需要先下载仓库、执行 `npm install` 或手动编写 patch。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+
+### 备用方式：PowerShell 安装脚本
 
 普通用户不需要 `npm install`。Windows PowerShell 推荐：
 
@@ -38,7 +54,7 @@ Set-Location .\DSH-Timeline-Navigator
   -Version latest
 ```
 
-`latest` 会读取最新 Release；也可以指定 `v0.3.2` 或分支名 `main`。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+`latest` 会读取最新 Release；也可以指定 `v0.3.3` 或分支名 `main`。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
 
 如果 DSH 不在默认目录 `%USERPROFILE%\.dsh`：
 

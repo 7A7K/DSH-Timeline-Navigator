@@ -20,7 +20,25 @@
 - 记住启用状态、面板宽度、过滤模式、滚动模式和首次提示状态。
 - 支持移动端底部面板，并尊重系统的“减少动态效果”设置。
 
-## 安装：从 GitHub 项目链接使用
+## 安装：让 Harness 直接下载（推荐）
+
+如果已经安装 DeepSeek Harness，直接在终端执行下面这一条命令，Harness 会从 GitHub 获取并安装插件：
+
+```powershell
+dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator
+```
+
+安装指定版本时，在项目链接后加 tag：
+
+```powershell
+dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator#v0.3.3
+```
+
+首次安装会自动把插件加入 `web` profile。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+
+本项目已经包含可直接加载的 `lib/` 构建产物，并声明了 Harness 所需的 `dsh.bundle` 清单，因此用户不需要先下载仓库、执行 `npm install` 或手动编写 patch。
+
+### 备用方式：PowerShell 安装脚本
 
 安装包已经随仓库提供，普通用户不需要 `npm install` 或发布 npm 包。Windows PowerShell 推荐使用下面的方式：
 
@@ -42,9 +60,9 @@ Set-Location .\DSH-Timeline-Navigator
   -Version latest
 ```
 
-`-Version latest` 会读取 GitHub 最新 Release；也可以固定版本，例如 `-Version v0.3.2`。分支名（如 `main`）和版本 tag 都支持。
+`-Version latest` 会读取 GitHub 最新 Release；也可以固定版本，例如 `-Version v0.3.3`。分支名（如 `main`）和版本 tag 都支持。
 
-安装器会把插件复制到 DSH 的插件目录，创建 Web profile 所需的 junction 和 patch 配置。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+安装器会把插件复制到 DSH 的插件目录，创建 Web profile 所需的 junction 和 patch 配置。
 
 如果 DSH 不在默认目录 `%USERPROFILE%\.dsh`，请显式指定：
 
@@ -119,7 +137,19 @@ An accessible conversation timeline for the DeepSeek Harness Web UI. It turns lo
 
 ### Install from GitHub
 
-The repository includes the built plugin artifact; end users do not need npm:
+The recommended Harness-native installation is:
+
+```powershell
+dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator
+```
+
+To pin a release:
+
+```powershell
+dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator#v0.3.3
+```
+
+The package declares the required `dsh.bundle.patch` manifest and includes the built `lib/` artifact, so end users do not need to clone the repository or run npm:
 
 ```powershell
 git clone https://github.com/7A7K/DSH-Timeline-Navigator.git
@@ -127,7 +157,7 @@ Set-Location .\DSH-Timeline-Navigator
 .\install.ps1
 ```
 
-To install directly from a public repository URL, pass `-Version main`, a version tag such as `v0.3.2`, or `-Version latest` to resolve the latest GitHub Release. Reload `http://127.0.0.1:3080/` after installation and restart the DSH Web process if an old bundle remains loaded.
+Reload `http://127.0.0.1:3080/` after installation and restart the DSH Web process if an old bundle remains loaded.
 
 ### Compatibility and development
 
