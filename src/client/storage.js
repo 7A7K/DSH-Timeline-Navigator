@@ -37,6 +37,7 @@ const DEFAULT_PREFERENCES = Object.freeze({
   smooth: true,
   filterMode: 'messages',
   hintSeen: false,
+  language: 'auto',
 })
 
 export function loadPreferences(storage = safeStorage()) {
@@ -46,6 +47,7 @@ export function loadPreferences(storage = safeStorage()) {
     smooth: raw?.smooth !== false,
     filterMode: raw?.filterMode === 'all' ? 'all' : DEFAULT_PREFERENCES.filterMode,
     hintSeen: raw?.hintSeen === true,
+    language: raw?.language === 'zh' || raw?.language === 'en' ? raw.language : DEFAULT_PREFERENCES.language,
   }
 }
 
@@ -56,6 +58,7 @@ export function createAppStore(storage = safeStorage()) {
   let smooth = saved.smooth
   let filterMode = saved.filterMode
   let hintSeen = saved.hintSeen
+  let language = saved.language
   let enabled = enabledRaw == null ? true : enabledRaw !== 'false'
   const listeners = new Set()
 
@@ -64,13 +67,14 @@ export function createAppStore(storage = safeStorage()) {
   }
 
   function persist() {
-    writeJson(storage, PREFERENCES_KEY, { width, smooth, filterMode, hintSeen })
+    writeJson(storage, PREFERENCES_KEY, { width, smooth, filterMode, hintSeen, language })
   }
 
   return {
     getWidth: () => width,
     isSmooth: () => smooth,
     getFilterMode: () => filterMode,
+    getLanguage: () => language,
     isEnabled: () => enabled,
     isHintSeen: () => hintSeen,
     setWidth(value) {
@@ -88,6 +92,16 @@ export function createAppStore(storage = safeStorage()) {
     },
     toggleFilterMode() {
       filterMode = filterMode === 'messages' ? 'all' : 'messages'
+      persist()
+      emit()
+    },
+    toggleLanguage(currentLanguage = 'en') {
+      const effective = language === 'zh' || language === 'en'
+        ? language
+        : currentLanguage === 'zh' ? 'zh' : 'en'
+      const next = effective === 'zh' ? 'en' : 'zh'
+      if (language === next) return
+      language = next
       persist()
       emit()
     },

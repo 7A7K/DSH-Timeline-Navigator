@@ -17,6 +17,7 @@
 - 默认合拢回合，支持“展开全部 / 折叠全部”。
 - 点击每条消息右侧星标收藏；移动端长按是备用方式。
 - 一键跳到最早/最新消息，按 `Escape` 关闭面板，拖动左边缘调整宽度。
+- 面板标题栏和设置页插件卡片都提供 `中 / EN` 按钮；切换后标题、搜索、收藏、跳转、展开/折叠和状态提示会同步切换语言，并自动记住选择。
 - 记住启用状态、面板宽度、过滤模式、滚动模式和首次提示状态。
 - 支持移动端底部面板，并尊重系统的“减少动态效果”设置。
 
@@ -126,6 +127,7 @@ An accessible conversation timeline for the DeepSeek Harness Web UI. It turns lo
 - Collapsed turn groups by default, plus Expand all / Collapse all.
 - Explicit star controls for bookmarks, with touch long-press as a fallback.
 - Earliest/latest navigation, `Escape` to close, and draggable panel width.
+- A `中 / EN` language switcher updates panel labels, buttons, messages, and status text together, and remembers the choice.
 - Persistent enabled state, width, filter mode, scroll mode, and first-use hint state.
 - Mobile bottom sheet and `prefers-reduced-motion` support.
 

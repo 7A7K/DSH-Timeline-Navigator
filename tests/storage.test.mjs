@@ -24,6 +24,19 @@ test('persists timeline preferences and clamps width', () => {
   assert.equal(loadPreferences(storage).filterMode, 'all')
 })
 
+test('persists the manual language override', () => {
+  const storage = memoryStorage()
+  const store = createAppStore(storage)
+  assert.equal(store.getLanguage(), 'auto')
+
+  store.toggleLanguage('zh')
+  assert.equal(store.getLanguage(), 'en')
+  assert.equal(createAppStore(storage).getLanguage(), 'en')
+
+  store.toggleLanguage('en')
+  assert.equal(store.getLanguage(), 'zh')
+})
+
 test('persists enabled state and bookmark toggles', () => {
   const storage = memoryStorage()
   const store = createAppStore(storage)

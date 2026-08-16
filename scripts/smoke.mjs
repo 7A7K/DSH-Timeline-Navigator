@@ -50,6 +50,21 @@ try {
   const turnCount = await turns.count()
   if (!turnCount) throw new Error('No turn groups found. Open a non-empty Harness conversation before running the smoke test.')
 
+  const languageToggle = panel.locator('.tlnav-language')
+  if (await languageToggle.count() !== 1) throw new Error('Language switcher is missing.')
+  const beforeLanguage = await languageToggle.getAttribute('data-language')
+  await languageToggle.click()
+  await waitForState()
+  const afterLanguage = await languageToggle.getAttribute('data-language')
+  if (!afterLanguage || afterLanguage === beforeLanguage) throw new Error('Language switcher did not change the active language.')
+  const expectedPlaceholder = afterLanguage === 'zh' ? '搜索消息' : 'Search messages'
+  if (await panel.locator('.tlnav-search').getAttribute('placeholder') !== expectedPlaceholder) {
+    throw new Error(`Language switcher did not update the search placeholder to ${expectedPlaceholder}.`)
+  }
+  await languageToggle.click()
+  await waitForState()
+  if (await languageToggle.getAttribute('data-language') !== beforeLanguage) throw new Error('Language switcher did not toggle back.')
+
   const initiallyCollapsed = await expandedValues(panel)
   if (initiallyCollapsed.some((value) => value !== 'false')) {
     throw new Error(`Expected all turns to start collapsed, received: ${initiallyCollapsed.join(', ')}`)

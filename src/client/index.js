@@ -57,40 +57,95 @@ function useBindingSelection(session, selector) {
   return value
 }
 
-function useLanguage(locale) {
-  const [language, setLanguage] = React.useState(() => readLanguage(locale))
+function resolveLanguage(locale, store) {
+  const preference = store?.getLanguage?.()
+  return preference === 'zh' || preference === 'en' ? preference : readLanguage(locale)
+}
+
+function useLanguage(locale, store) {
+  const [language, setLanguage] = React.useState(() => resolveLanguage(locale, store))
   React.useEffect(() => {
-    const update = () => setLanguage(readLanguage(locale))
+    const update = () => setLanguage(resolveLanguage(locale, store))
     update()
-    if (typeof locale?.subscribe !== 'function') return undefined
-    const unsubscribe = locale.subscribe(update)
-    return typeof unsubscribe === 'function' ? unsubscribe : undefined
-  }, [locale])
+    const unsubscribeLocale = typeof locale?.subscribe === 'function' ? locale.subscribe(update) : undefined
+    const unsubscribeStore = typeof store?.subscribe === 'function' ? store.subscribe(update) : undefined
+    return () => {
+      if (typeof unsubscribeLocale === 'function') unsubscribeLocale()
+      if (typeof unsubscribeStore === 'function') unsubscribeStore()
+    }
+  }, [locale, store])
   return language
+}
+
+function localizeNavTitle(nav, t) {
+  const titleKeys = {
+    user: 'user',
+    'assistant-step': 'assistant',
+    context: 'context',
+    compaction: 'compaction',
+    'manual-compaction': 'compaction',
+    retry: 'retry',
+    'model-retry': 'retry',
+    steering: 'steering',
+    'turn-error': 'error',
+    'turn-max-tokens': 'maxTokens',
+    'workflow-run': 'workflow',
+    'turn-tail': 'turn',
+    unknown: 'unknown',
+  }
+  const key = titleKeys[nav.kind]
+  if (key) return t(key)
+  if (nav.kind === 'tool-call') return nav.title === 'Tool' ? t('tool') : nav.title
+  if (nav.kind === 'command' || nav.kind === 'command-input') return nav.title?.startsWith('/') ? nav.title : t('command')
+  return nav.title || t('node')
 }
 
 function SettingsCard(props) {
   const enabled = props.useStore((state) => state.enabled)
+  const languagePreference = props.useStore((state) => state.language)
+  const language = languagePreference === 'zh' || languagePreference === 'en'
+    ? languagePreference
+    : undefined
+  const t = language
+    ? (key) => (language === 'zh' ? settingsZh : settingsEn)[key] || props.t(key)
+    : props.t
   return React.createElement(
     'li',
     { className: 'tlnav-card' },
     React.createElement(
       'div',
       { className: 'tlnav-card-text' },
-      React.createElement('div', { className: 'tlnav-card-title' }, props.t('timeline.title')),
-      React.createElement('div', { className: 'tlnav-card-desc' }, props.t('timeline.description')),
+      React.createElement('div', { className: 'tlnav-card-title' }, t('timeline.title')),
+      React.createElement('div', { className: 'tlnav-card-desc' }, t('timeline.description')),
     ),
     React.createElement(
-      'button',
-      {
-        type: 'button',
-        className: 'tlnav-card-toggle',
-        'aria-pressed': enabled,
-        'aria-label': `${props.t('timeline.title')}: ${enabled ? props.t('timeline.enable') : props.t('timeline.disable')}`,
-        onClick: () => props.setEnabled(!enabled),
-      },
-      React.createElement('span', { className: 'tlnav-card-check', 'aria-hidden': 'true' }, enabled ? '✓' : ''),
-      enabled ? props.t('timeline.enable') : props.t('timeline.disable'),
+      'div',
+      { className: 'tlnav-card-actions' },
+      React.createElement(
+        'button',
+        {
+          type: 'button',
+          className: 'tlnav-card-language',
+          'aria-label': language === 'zh' ? t('timeline.switchToEnglish') : t('timeline.switchToChinese'),
+          title: language === 'zh' ? t('timeline.switchToEnglish') : t('timeline.switchToChinese'),
+          onClick: props.toggleLanguage,
+        },
+        React.createElement('span', { 'data-active': language === 'zh' ? 'true' : 'false' }, '中'),
+        React.createElement('span', { 'aria-hidden': 'true' }, '/'),
+        React.createElement('span', { 'data-active': language === 'en' ? 'true' : 'false' }, 'EN'),
+      ),
+      React.createElement(
+        'button',
+        {
+          type: 'button',
+          className: 'tlnav-card-toggle',
+          'aria-pressed': enabled,
+          'aria-label': `${t('timeline.title')}: ${enabled ? t('timeline.enable') : t('timeline.disable')}`,
+          onClick: () => props.setEnabled(!enabled),
+        },
+        React.createElement('span', { className: 'tlnav-card-check', 'aria-hidden': 'true' }, enabled ? '✓' : ''),
+        enabled ? t('timeline.enable') : t('timeline.disable'),
+      ),
     ),
   )
 }
@@ -98,6 +153,7 @@ function SettingsCard(props) {
 function MarkerRow({ nav, active, bookmarked, onNavigate, onToggleBookmark, onHover, onLeave, t }) {
   const longTimer = React.useRef(null)
   const longTriggered = React.useRef(false)
+  const title = localizeNavTitle(nav, t)
 
   function startPress(event) {
     event.stopPropagation()
@@ -135,9 +191,9 @@ function MarkerRow({ nav, active, bookmarked, onNavigate, onToggleBookmark, onHo
       {
         className: 'tlnav-marker-main',
         type: 'button',
-        'aria-label': `${nav.turn != null ? `${t('turnLabel')} ${nav.turn} · ` : ''}${nav.title}`,
+        'aria-label': `${nav.turn != null ? `${t('turnLabel')} ${nav.turn} · ` : ''}${title}`,
         'aria-current': active ? 'location' : undefined,
-        title: nav.preview || nav.title,
+        title: nav.preview || title,
         onPointerDown: startPress,
         onPointerUp: endPress,
         onPointerLeave: endPress,
@@ -153,7 +209,7 @@ function MarkerRow({ nav, active, bookmarked, onNavigate, onToggleBookmark, onHo
       },
       React.createElement('span', { className: 'tlnav-dot', 'data-role': nav.role, 'aria-hidden': 'true' }),
       nav.step != null ? React.createElement('span', { className: 'tlnav-step', 'aria-hidden': 'true' }, String(nav.step)) : null,
-      React.createElement('span', { className: 'tlnav-label' }, nav.title),
+      React.createElement('span', { className: 'tlnav-label' }, title),
     ),
     React.createElement(
       'button',
@@ -186,10 +242,10 @@ function PreviewCard({ preview, t }) {
       style: { position: 'fixed', left, top, width, maxWidth: '70vw', zIndex: 70, pointerEvents: 'none' },
       role: 'tooltip',
     },
-    React.createElement('div', { className: 'tlnav-preview-title' }, preview.nav.title),
+    React.createElement('div', { className: 'tlnav-preview-title' }, localizeNavTitle(preview.nav, t)),
     preview.nav.preview ? React.createElement('div', { className: 'tlnav-preview-text' }, preview.nav.preview) : null,
     preview.nav.turn != null
-      ? React.createElement('div', { className: 'tlnav-preview-meta' }, `${t('turnLabel')} ${preview.nav.turn}${preview.nav.step != null ? ` · step ${preview.nav.step}` : ''}`)
+      ? React.createElement('div', { className: 'tlnav-preview-meta' }, `${t('turnLabel')} ${preview.nav.turn}${preview.nav.step != null ? ` · ${t('step')} ${preview.nav.step}` : ''}`)
       : null,
   )
 }
@@ -233,7 +289,7 @@ function initialCollapsedTurns(points) {
 function RailPanel({ sessions, locale, useSessions, store }) {
   const storage = React.useMemo(() => safeStorage(), [])
   const bookmarks = React.useMemo(() => createBookmarkStore(storage), [storage])
-  const lang = useLanguage(locale)
+  const lang = useLanguage(locale, store)
   const t = React.useCallback((key) => panelDictionaries[lang]?.[key] || key, [lang])
   const width = useStoreValue(store, store.getWidth)
   const smooth = useStoreValue(store, store.isSmooth)
@@ -570,6 +626,21 @@ function RailPanel({ sessions, locale, useSessions, store }) {
         { className: 'tlnav-header' },
         React.createElement('span', { className: 'tlnav-title' }, t('title')),
         running ? React.createElement('span', { className: 'tlnav-running', title: t('running'), 'aria-label': t('running') }) : null,
+        React.createElement(
+          'button',
+          {
+            type: 'button',
+            className: 'tlnav-btn tlnav-language',
+            'data-language': lang,
+            onClick: () => store.toggleLanguage(lang),
+            title: lang === 'zh' ? t('switchToEnglish') : t('switchToChinese'),
+            'aria-label': lang === 'zh' ? t('switchToEnglish') : t('switchToChinese'),
+            'data-tooltip': lang === 'zh' ? t('switchToEnglish') : t('switchToChinese'),
+          },
+          React.createElement('span', { 'data-active': lang === 'zh' ? 'true' : 'false' }, '中'),
+          React.createElement('span', { 'aria-hidden': 'true' }, '/'),
+          React.createElement('span', { 'data-active': lang === 'en' ? 'true' : 'false' }, 'EN'),
+        ),
         React.createElement('button', { type: 'button', className: 'tlnav-btn', 'aria-pressed': pinned, onClick: () => setPinned((value) => !value), title: t('pin'), 'aria-label': t('pin'), 'data-tooltip': t('pin') }, '📌'),
         React.createElement('button', { type: 'button', className: 'tlnav-btn', 'aria-pressed': mode === 'all', onClick: () => store.toggleFilterMode(), title: mode === 'messages' ? t('showAll') : t('showMessages'), 'aria-label': mode === 'messages' ? t('showAll') : t('showMessages'), 'data-tooltip': mode === 'messages' ? t('showAll') : t('showMessages') }, mode === 'messages' ? t('messages') : t('all')),
         React.createElement('button', { type: 'button', className: 'tlnav-btn', 'aria-pressed': smooth, onClick: () => store.toggleSmooth(), title: smooth ? t('smooth') : t('jump'), 'aria-label': smooth ? t('smooth') : t('jump'), 'data-tooltip': smooth ? t('smooth') : t('jump') }, smooth ? '↝' : '↣'),
@@ -643,11 +714,12 @@ export function apply(ctx) {
 
   const store = createAppStore()
   const settingsStore = defineStore({
-    init: () => ({ enabled: true, revision: -1 }),
+    init: () => ({ enabled: true, language: 'auto', revision: -1 }),
     actions: {
-      sync: (draft, enabled, revision) => {
+      sync: (draft, enabled, language, revision) => {
         if (revision <= draft.revision) return
         draft.enabled = enabled
+        draft.language = language
         draft.revision = revision
       },
     },
@@ -655,14 +727,22 @@ export function apply(ctx) {
   let bound = null
   let revision = 0
   const syncSettings = (enabled) => {
-    bound?.sync(enabled, revision)
+    bound?.sync(enabled, resolveLanguage(locale, store), revision)
     revision += 1
   }
   const injectSettings = (actions) => {
     bound = actions
     syncSettings(store.isEnabled())
-    return { setEnabled: (enabled) => { store.setEnabled(enabled); syncSettings(enabled) } }
+    return {
+      setEnabled: (enabled) => { store.setEnabled(enabled); syncSettings(enabled) },
+      toggleLanguage: () => { store.toggleLanguage(resolveLanguage(locale, store)); syncSettings(store.isEnabled()) },
+    }
   }
+
+  ctx.effect(() => {
+    if (typeof locale?.subscribe !== 'function') return undefined
+    return locale.subscribe(() => syncSettings(store.isEnabled()))
+  })
 
   locale.register(SETTINGS_NAMESPACE, { zh: settingsZh, en: settingsEn })
 

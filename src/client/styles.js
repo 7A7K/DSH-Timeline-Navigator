@@ -31,6 +31,9 @@ export const CSS = `
 .tlnav-btn { appearance: none; background: transparent; border: 1px solid transparent; border-radius: 8px; color: var(--dsw-alias-label-secondary); cursor: pointer; padding: 4px 6px; font: var(--dsw-font-xxs-12); white-space: nowrap; }
 .tlnav-btn:hover, .tlnav-btn:focus-visible { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); outline: none; }
 .tlnav-btn:focus-visible { box-shadow: 0 0 0 2px var(--dsw-alias-state-business-primary); }
+.tlnav-language { display: inline-flex; align-items: center; gap: 2px; padding-inline: 5px; font-size: 11px; }
+.tlnav-language span { opacity: .55; }
+.tlnav-language span[data-active="true"] { opacity: 1; color: var(--dsw-alias-state-business-primary); font-weight: 600; }
 .tlnav-btn[data-on="true"] { color: var(--dsw-alias-state-business-primary); border-color: var(--dsw-alias-state-business-primary); }
 .tlnav-btn[data-tooltip] { position: relative; }
 .tlnav-btn[data-tooltip]::after { content: attr(data-tooltip); position: absolute; top: calc(100% + 6px); right: 0; z-index: 90; max-width: 220px; padding: 5px 8px; border: 1px solid var(--dsw-alias-border-l2); border-radius: 6px; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); box-shadow: var(--dsw-shadow-lv1); font: var(--dsw-font-xxs-12); line-height: 16px; white-space: nowrap; pointer-events: none; opacity: 0; transform: translateY(-2px); transition: opacity .12s ease, transform .12s ease; }
@@ -86,6 +89,12 @@ export const CSS = `
 .tlnav-card-text { flex-direction: column; gap: 2px; min-width: 0; display: flex; }
 .tlnav-card-title { color: var(--dsw-alias-label-primary); font-size: 14px; font-weight: 500; line-height: 22px; }
 .tlnav-card-desc { color: var(--dsw-alias-label-tertiary); font-size: 12px; line-height: 18px; }
+.tlnav-card-actions { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+.tlnav-card-language { appearance: none; border: 1px solid var(--dsw-alias-border-l2); height: 28px; color: var(--dsw-alias-label-secondary); cursor: pointer; background: transparent; border-radius: 14px; padding: 0 8px; font-size: 12px; line-height: 18px; white-space: nowrap; }
+.tlnav-card-language span { opacity: .55; }
+.tlnav-card-language span[data-active="true"] { opacity: 1; color: var(--dsw-alias-state-business-primary); font-weight: 600; }
+.tlnav-card-language:hover, .tlnav-card-language:focus-visible { background: var(--dsw-alias-interactive-bg-hover); outline: none; }
+.tlnav-card-language:focus-visible { box-shadow: 0 0 0 2px var(--dsw-alias-state-business-primary); }
 .tlnav-card-toggle { border: 1px solid var(--dsw-alias-border-l2); height: 28px; color: var(--dsw-alias-label-primary); cursor: pointer; background: transparent; border-radius: 14px; flex: none; align-items: center; gap: 6px; padding: 0 10px 0 6px; font-size: 12px; line-height: 18px; display: inline-flex; }
 .tlnav-card-toggle:hover, .tlnav-card-toggle:focus-visible { background: var(--dsw-alias-interactive-bg-hover); outline: none; }
 .tlnav-card-toggle:focus-visible { box-shadow: 0 0 0 2px var(--dsw-alias-state-business-primary); }
@@ -96,6 +105,10 @@ export const CSS = `
   .tlnav-panel[data-open="true"] { transform: translateY(0); }
   .tlnav-trigger { top: auto; bottom: 88px; transform: none; width: 40px; height: 42px; border-radius: 12px 0 0 12px; }
   .tlnav-trigger:hover, .tlnav-trigger:focus-visible { width: 46px; }
+}
+@media (max-width: 520px) {
+  .tlnav-card { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .tlnav-card-actions { align-self: flex-end; }
 }
 @media (prefers-reduced-motion: reduce) {
   .tlnav-panel, .tlnav-trigger, .tlnav-btn[data-tooltip]::after { transition: none; }
