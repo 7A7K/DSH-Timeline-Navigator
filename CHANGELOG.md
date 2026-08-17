@@ -2,6 +2,20 @@
 
 All notable changes to `@deepseek-ai/dsh-client-ui-timeline-navigator`.
 
+## [0.3.5] - 2026-08-17
+
+### Added
+- Added Chinese and English wording that this is a community-maintained plugin by 7A7K and is not affiliated with, sponsored, or endorsed by DeepSeek.
+- Added a deterministic simulated Harness UI integration test covering the timeline panel and Settings → Plugins registration without requiring a live Harness process.
+- Added a compatibility guide for the DSH Web `rc.6` contract line and the manual live smoke-test boundary.
+
+### Changed
+- Added explicit security warnings to the fallback PowerShell installer and defaulted GitHub installs to the latest release instead of the mutable `main` branch.
+- Disabled accidental npm publication while keeping the existing runtime package identity unchanged.
+
+### Removed
+- Removed the unused query-based filtering path left behind after the search UI was removed.
+
 ## [0.3.4] - 2026-08-16
 
 ### Added

@@ -33,11 +33,24 @@ git tag v<version>
 git push origin main --follow-tags
 ```
 
+If you use GitHub Desktop, select all tracked and new files, commit the release preparation,
+and then click **Push origin**. `node_modules/` and `.tmp/` remain ignored.
+
 The package version, lockfile version, top `CHANGELOG.md` entry, and tag must match. The quality
 and release workflows check this automatically. For the current pending release, that means
-publishing tag `v0.3.4` from the commit containing the latest UI changes. Pushing the tag starts
+publishing tag `v0.3.5` from the commit containing the latest hardening changes. Pushing the tag starts
 `.github/workflows/release.yml`; the resulting GitHub Release includes generated notes and the
 installable plugin package.
+
+Before publishing, run both the deterministic fixture test and the core check:
+
+```powershell
+npm run check
+npm run test:ui
+```
+
+`npm run test:ui` uses a simulated Harness page and is safe for CI. `npm run smoke` remains the
+manual check against a real, non-empty Harness conversation and is not forced into ordinary CI.
 
 ## UI smoke test before release
 

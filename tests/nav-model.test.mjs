@@ -51,14 +51,14 @@ test('handles malformed or empty snapshots defensively', () => {
   assert.deepEqual(locationOf({ location: { kind: 'session' } }), {})
 })
 
-test('filters message mode and query text without mutating the source', () => {
+test('filters message mode without mutating the source', () => {
   const points = [
     { key: 'u', role: 'user', title: 'Deploy app', preview: 'production' },
     { key: 'a', role: 'assistant', title: 'Assistant', preview: 'done' },
     { key: 't', role: 'tool', title: 'bash', preview: 'npm test' },
   ]
-  assert.deepEqual(filterNavPoints(points, 'messages', ''), points.slice(0, 2))
-  assert.deepEqual(filterNavPoints(points, 'all', 'npm'), [points[2]])
+  assert.deepEqual(filterNavPoints(points, 'messages'), points.slice(0, 2))
+  assert.deepEqual(filterNavPoints(points, 'all'), points)
   assert.equal(points.length, 3)
 })
 
@@ -71,4 +71,3 @@ test('groups points by turn while preserving order', () => {
   ])
   assert.deepEqual(groups.map((group) => [group.turn, group.items.length]), [[1, 2], [2, 1], [undefined, 1]])
 })
-

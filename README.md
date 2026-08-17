@@ -6,6 +6,8 @@
 
 一个面向 DeepSeek Harness Web UI 的对话时间线导航插件。它把长对话按回合整理成可点击跳转、可收藏的侧边时间线，不修改 Harness 主程序源码。
 
+> 本项目由 7A7K 独立维护，是社区插件，与 DeepSeek 官方无隶属、赞助或背书关系。
+
 ![时间线导航演示图（界面示意）](demo-timeline.svg)
 
 ## 你能用它做什么
@@ -54,7 +56,7 @@ Set-Location .\DSH-Timeline-Navigator
   -Version latest
 ```
 
-`-Version latest` 会读取 GitHub 最新 Release；分支名（如 `main`）和版本 tag 都支持。
+`-Version latest` 会读取 GitHub 最新 Release；也可以指定版本 tag。备用脚本会从 GitHub 下载并复制代码到本地，未提供签名或哈希校验；请优先使用上面的 Harness 官方安装命令，或至少固定到明确的版本 tag，不要对不受信任的仓库使用 `main`。
 
 安装器会把插件复制到 DSH 的插件目录，创建 Web profile 所需的 junction 和 patch 配置。
 
@@ -93,8 +95,9 @@ Set-Location .\DSH-Timeline-Navigator
 - 目标为 DSH Web client `rc.6` 及更新的插件合约。
 - 依赖 Harness 提供的 `ChatSnapshot` 和 `data-chat-anchor-key`，不抓取原始 session 事件。
 - 插件只拥有自己的 overlay 和 settings slots；禁用或卸载不会修改宿主源码。
-- CI 会验证宿主 DOM 定位、历史消息加载、插件 manifest、overlay slot 和设置页 slot 的集成契约；这些检查用于尽早发现 Harness 合约变化。
-- `npm run smoke` 仍需要一个正在运行且有非空会话的 Harness，用于最终的真实 UI 验证；它不是 GitHub Actions 的必需前置条件。
+- CI 会验证宿主 DOM 定位、历史消息加载、插件 manifest、overlay/settings slots，以及模拟 Harness 页面中的真实 UI 交互。
+- 自动化 fixture 覆盖 DSH `rc.6` 合约形状；`npm run smoke` 仍需要一个正在运行且有非空会话的真实 Harness，用于发布前人工验证，不作为普通 CI 的前置条件。
+- 详细的支持范围、契约依赖和升级建议见 [兼容性说明](COMPATIBILITY.md)。
 - 安装脚本需要 Windows PowerShell 和一个已经存在的 DSH home；最终用户不需要 Node.js。
 
 ## 本地开发
@@ -105,9 +108,10 @@ Set-Location .\DSH-Timeline-Navigator
 npm install
 npm run bundle
 npm run check
+npm run test:ui
 ```
 
-源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。`npm run check` 会检查版本元数据、生成 bundle 的语法和模型、存储、宿主契约测试。
+源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。`npm run check` 检查版本元数据、生成 bundle 的语法和核心测试；`npm run test:ui` 在模拟 Harness 页面中运行 Playwright 交互测试。
 
 UI 冒烟测试需要本地 Harness 正在运行并有非空会话：
 
@@ -120,6 +124,8 @@ npm run smoke
 ### DeepSeek Harness Timeline Navigator
 
 An accessible conversation timeline for the DeepSeek Harness Web UI. It turns long conversations into a clickable, bookmarkable side panel without modifying Harness source code.
+
+> This is a community-maintained plugin by 7A7K. It is not affiliated with, sponsored, or endorsed by DeepSeek.
 
 ### Features
 
@@ -153,15 +159,16 @@ Reload `http://127.0.0.1:3080/` after installation and restart the DSH Web proce
 
 ### Compatibility and development
 
-The plugin targets the DSH Web client `rc.6` contract line and newer. It uses the host `ChatSnapshot` and `data-chat-anchor-key` contracts, owns only its overlay and settings slots, and does not scrape raw session events. CI checks DOM location, older-message loading, the plugin manifest, and both UI slot integrations. Developers need Node.js 18+:
+The plugin targets the DSH Web client `rc.6` contract line and newer. It uses the host `ChatSnapshot` and `data-chat-anchor-key` contracts, owns only its overlay and settings slots, and does not scrape raw session events. CI checks DOM location, older-message loading, the plugin manifest, both UI slot integrations, and real interactions in a simulated Harness page. See [compatibility notes](COMPATIBILITY.md) for the support boundary. Developers need Node.js 18+:
 
 ```powershell
 npm install
 npm run bundle
 npm run check
+npm run test:ui
 ```
 
-`npm run smoke` is an optional live Harness UI check and requires a running Harness page with a non-empty conversation.
+`npm run test:ui` is the deterministic fixture test. `npm run smoke` remains an optional live Harness UI check and requires a running Harness page with a non-empty conversation.
 
 ## Links
 

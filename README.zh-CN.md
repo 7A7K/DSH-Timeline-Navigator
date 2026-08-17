@@ -4,6 +4,8 @@
 
 一个面向 DeepSeek Harness Web UI 的对话时间线导航插件。它把长对话按回合整理成可点击跳转、可收藏的侧边时间线，不修改 Harness 主程序源码。
 
+> 本项目由 7A7K 独立维护，是社区插件，与 DeepSeek 官方无隶属、赞助或背书关系。
+
 ![时间线导航演示图（界面示意）](demo-timeline.svg)
 
 ## 功能
@@ -48,7 +50,7 @@ Set-Location .\DSH-Timeline-Navigator
   -Version latest
 ```
 
-`latest` 会读取最新 Release；分支名（如 `main`）和版本 tag 都支持。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
+`latest` 会读取最新 Release，也可以指定版本 tag。备用脚本会从 GitHub 下载并复制代码到本地，未提供签名或哈希校验；请优先使用上面的 Harness 官方安装命令，或至少固定到明确的版本 tag，不要对不受信任的仓库使用 `main`。安装完成后刷新 `http://127.0.0.1:3080/`；如果页面仍使用旧 bundle，请重启一次 DSH Web 进程。
 
 如果 DSH 不在默认目录 `%USERPROFILE%\.dsh`：
 
@@ -83,8 +85,9 @@ Set-Location .\DSH-Timeline-Navigator
 - 目标为 DSH Web client `rc.6` 及更新的插件合约。
 - 使用 Harness 的 `ChatSnapshot` 和 `data-chat-anchor-key`，不抓取原始 session 事件。
 - 只拥有自己的 overlay 和 settings slots；禁用或卸载不会修改宿主源码。
-- CI 会检查宿主 DOM 定位、历史消息加载、插件 manifest、overlay slot 和设置页 slot，尽早发现 Harness 合约变化。
-- `npm run smoke` 仍需要正在运行且有非空会话的 Harness，用于真实 UI 验证，不作为 GitHub Actions 的必需前置条件。
+- CI 会检查宿主 DOM 定位、历史消息加载、插件 manifest、overlay/settings slots，以及模拟 Harness 页面中的真实 UI 交互。
+- 自动化 fixture 覆盖 DSH `rc.6` 合约形状；`npm run smoke` 仍需要正在运行且有非空会话的真实 Harness，用于发布前人工验证，不作为普通 CI 的必需前置条件。
+- 详细的支持范围、契约依赖和升级建议见 [兼容性说明](COMPATIBILITY.md)。
 - 最终用户只需要 Windows PowerShell 和已经存在的 DSH home，不需要 Node.js。
 
 ## 开发
@@ -95,6 +98,7 @@ Set-Location .\DSH-Timeline-Navigator
 npm install
 npm run bundle
 npm run check
+npm run test:ui
 ```
 
-源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。`npm run check` 会检查版本元数据、生成 bundle 的语法和模型、存储、宿主契约测试。
+源码在 `src/`，`lib/` 是生成产物。修改后先运行 `npm run bundle`，不要直接编辑 `lib/client.js`。`npm run check` 检查版本元数据、生成 bundle 的语法和核心测试；`npm run test:ui` 在模拟 Harness 页面中运行 Playwright 交互测试。

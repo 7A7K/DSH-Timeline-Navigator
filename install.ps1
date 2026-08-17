@@ -3,12 +3,12 @@
 # Local checkout:
 #   .\install.ps1 -Source (Get-Location).Path
 # GitHub checkout:
-#   .\install.ps1 -Source 'https://github.com/<owner>/<repo>' -Version latest
+#   .\install.ps1 -Source 'https://github.com/<owner>/<repo>' -Version v0.3.5
 
 [CmdletBinding()]
 param(
     [string]$Source = $PSScriptRoot,
-    [string]$Version = 'main',
+    [string]$Version = 'latest',
     [string]$DshHome = $env:DSH_HOME,
     [string]$Profile = 'web'
 )
@@ -31,6 +31,8 @@ try {
     New-Item -ItemType Directory -Force -Path $pluginsDir, $nodeModules, (Split-Path $linkPath -Parent), (Split-Path $patchFile -Parent) | Out-Null
 
     if ($Source -match '^https?://') {
+        Write-Warning 'Fallback installer downloads source code from GitHub over HTTPS and does not verify a signature or SHA-256 hash.'
+        Write-Warning 'Prefer: dsh plugin --profile web add github:7A7K/DSH-Timeline-Navigator. If using this script, pin -Version to an exact release tag and review the source first.'
         $repo = $Source.TrimEnd('/')
         if ($repo -match '\.git$') { $repo = $repo.Substring(0, $repo.Length - 4) }
         if ($repo -notmatch '^https://github\.com/[^/]+/[^/]+$') {
@@ -38,11 +40,15 @@ try {
         }
 
         $ref = $Version
+        if ($Version -eq 'main') {
+            Write-Warning 'The main branch is mutable. Use -Version latest or an exact tag such as v0.3.5 for a reproducible install.'
+        }
         if ($Version -eq 'latest') {
             $repoPath = $repo -replace '^https://github\.com/', ''
             $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoPath/releases/latest" -Headers @{ 'User-Agent' = 'DSH-Timeline-Navigator-installer' }
             $ref = [string]$release.tag_name
             if (-not $ref) { throw "Could not resolve the latest GitHub release for $repo" }
+            Write-Host "Resolved latest release tag: $ref" -ForegroundColor DarkGray
         }
 
         $refType = if ($ref -match '^v?\d+\.\d+\.\d+(?:[-+].*)?$') { 'tags' } else { 'heads' }

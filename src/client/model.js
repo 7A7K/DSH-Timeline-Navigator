@@ -121,13 +121,8 @@ export function projectNavPoints(chat) {
   return points
 }
 
-export function filterNavPoints(points, mode, query) {
-  const visible = mode === 'all' ? points : points.filter((point) => isMessageRole(point.role))
-  const normalizedQuery = String(query || '').trim().toLocaleLowerCase()
-  if (!normalizedQuery) return visible
-  return visible.filter((point) =>
-    [point.title, point.preview].some((value) => String(value || '').toLocaleLowerCase().includes(normalizedQuery)),
-  )
+export function filterNavPoints(points, mode) {
+  return mode === 'all' ? points : points.filter((point) => isMessageRole(point.role))
 }
 
 export function groupNavPoints(points) {
@@ -142,4 +137,3 @@ export function groupNavPoints(points) {
   }
   return groups
 }
-

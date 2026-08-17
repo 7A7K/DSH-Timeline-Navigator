@@ -323,7 +323,7 @@ function RailPanel({ sessions, locale, useSessions, store }) {
   const dragging = React.useRef(false)
   const loadingOlder = React.useRef(false)
 
-  const visiblePoints = React.useMemo(() => filterNavPoints(navPoints, mode, ''), [navPoints, mode])
+  const visiblePoints = React.useMemo(() => filterNavPoints(navPoints, mode), [navPoints, mode])
   const groups = React.useMemo(() => groupNavPoints(visiblePoints), [visiblePoints])
 
   React.useEffect(() => {
